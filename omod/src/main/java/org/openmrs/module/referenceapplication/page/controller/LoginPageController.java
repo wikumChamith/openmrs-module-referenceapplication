@@ -33,6 +33,7 @@ import org.openmrs.ui.framework.UiUtils;
 import org.openmrs.ui.framework.annotation.SpringBean;
 import org.openmrs.ui.framework.page.PageModel;
 import org.openmrs.ui.framework.page.PageRequest;
+import org.openmrs.util.PrivilegeConstants;
 import org.openmrs.web.user.CurrentUsers;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -150,9 +151,14 @@ public class LoginPageController {
 	}
 	
 	private boolean isLocationUserPropertyAvailable(AdministrationService administrationService) {
-		String locationUserPropertyName = administrationService
-		        .getGlobalProperty(ReferenceApplicationConstants.LOCATION_USER_PROPERTY_NAME);
-		
+		String locationUserPropertyName;
+		try {
+			Context.addProxyPrivilege(PrivilegeConstants.GET_GLOBAL_PROPERTIES);
+			locationUserPropertyName  = administrationService
+					.getGlobalProperty(ReferenceApplicationConstants.LOCATION_USER_PROPERTY_NAME);
+		} finally {
+			Context.removeProxyPrivilege(PrivilegeConstants.GET_GLOBAL_PROPERTIES);
+		}
 		return StringUtils.isNotBlank(locationUserPropertyName);
 	}
 	
